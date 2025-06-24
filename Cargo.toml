@@ -1,0 +1,11 @@
+[package]
+name = "orange-whale"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1.0.98"
+rpgpie = "0.6.2"
+tar = "0.4.44"
+teloxide = "0.16.0"
+tokio = { version = "1.45.1", features = ["macros"] }
