@@ -1,4 +1,5 @@
 use std::{
+    env::var,
     fs::File,
     io::Cursor,
     time::{Duration, UNIX_EPOCH},
@@ -18,8 +19,15 @@ const MAX_FILE_SIZE: usize = 50000000;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let chat_id = std::env::var("CHAT_ID").unwrap();
-    let tar_data = archive("test")?;
+    let chat_id = var("CHAT_ID").unwrap();
+    let locations: Vec<String> = var("LOCATIONS")
+        .unwrap()
+        .trim()
+        .split(':')
+        .map(|s| s.to_string())
+        .collect();
+
+    let tar_data = archive(&locations)?;
     let encrypted_tar = encrypt_data("pub.txt", tar_data)?;
 
     let bot = Bot::from_env();
@@ -54,9 +62,11 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-fn archive(location: &str) -> Result<Vec<u8>> {
+fn archive(location: &[String]) -> Result<Vec<u8>> {
     let mut b = Builder::new(Vec::new());
-    b.append_dir_all(location, location)?;
+    for loc in location {
+        b.append_dir_all(loc, loc)?;
+    }
     Ok(b.into_inner()?)
 }
 
