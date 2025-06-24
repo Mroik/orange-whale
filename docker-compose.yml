@@ -1,0 +1,12 @@
+services:
+  app:
+    build:
+      dockerfile: ./Dockerfile
+      context: ./
+    environment:
+      - TELOXIDE_TOKEN=
+      - CHAT_ID=
+      - LOCATIONS=
+      - RUST_LOG=
+    volumes:
+      #- ./folder:/app/folder
