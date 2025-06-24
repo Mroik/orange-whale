@@ -6,6 +6,7 @@ use std::{
 };
 
 use anyhow::Result;
+use log::error;
 use rpgpie::{
     certificate::Certificate,
     message::{SignatureMode, encrypt},
@@ -19,6 +20,7 @@ const MAX_FILE_SIZE: usize = 50000000;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    env_logger::init();
     let chat_id = var("CHAT_ID").unwrap();
     let locations: Vec<String> = var("LOCATIONS")
         .unwrap()
@@ -48,11 +50,11 @@ async fn main() -> Result<()> {
             match bot.send_document(chat_id.clone(), x.clone()).await {
                 Ok(_) => break,
                 Err(teloxide::RequestError::RetryAfter(n)) => {
-                    println!("Awaiting {} seconds", n.seconds());
+                    error!("Awaiting {} seconds", n.seconds());
                     sleep(Duration::from_secs(n.seconds() as u64)).await
                 }
                 Err(err) => {
-                    println!("{}\nAwaiting 8 seconds", err);
+                    error!("{}\nAwaiting 8 seconds", err);
                     sleep(Duration::from_secs(8)).await
                 }
             }
