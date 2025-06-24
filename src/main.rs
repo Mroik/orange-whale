@@ -118,9 +118,8 @@ fn list_leafs(acc: &mut Vec<String>, path: &str) -> Result<()> {
     for entry in std::fs::read_dir(path)? {
         match entry {
             Ok(e) => {
-                if !e.file_type().unwrap().is_dir() {
-                    acc.push(format!("{}/{}", path, e.file_name().to_str().unwrap()));
-                } else {
+                acc.push(format!("{}/{}", path, e.file_name().to_str().unwrap()));
+                if e.file_type().unwrap().is_dir() {
                     list_leafs(
                         acc,
                         &format!("{}/{}", path, e.file_name().to_str().unwrap()),
