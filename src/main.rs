@@ -2,6 +2,7 @@ use std::{
     env::var,
     fs::{File, remove_file},
     io::Read,
+    os::unix::fs::FileTypeExt,
     time::{Duration, UNIX_EPOCH},
 };
 
@@ -102,12 +103,41 @@ async fn backup() -> Result<()> {
     Ok(())
 }
 
-fn archive(location: &[String]) -> Result<()> {
-    info!("Creating archive");
-    let mut b = Builder::new(File::create(BACKUP)?);
-    for loc in location {
-        b.append_dir_all(loc, loc)?;
+fn list_leafs(acc: &mut Vec<String>, path: &str) -> Result<()> {
+    for entry in std::fs::read_dir(path)? {
+        match entry {
+            Ok(e) => {
+                if !e.file_type().unwrap().is_dir() {
+                    acc.push(format!("{}/{}", path, e.file_name().to_str().unwrap()));
+                } else {
+                    list_leafs(
+                        acc,
+                        &format!("{}/{}", path, e.file_name().to_str().unwrap()),
+                    )?;
+                }
+            }
+            Err(_) => (),
+        }
     }
+    Ok(())
+}
+
+fn archive(locations: &[String]) -> Result<()> {
+    info!("Creating archive");
+    let mut paths = Vec::new();
+    let mut b = Builder::new(File::create(BACKUP)?);
+
+    for loc in locations {
+        list_leafs(&mut paths, loc)?;
+    }
+
+    for p in paths
+        .iter()
+        .filter(|item| !std::fs::metadata(item).unwrap().file_type().is_socket())
+    {
+        b.append_path(p)?;
+    }
+
     b.finish()?;
     info!("Archive created");
     Ok(())
