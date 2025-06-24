@@ -58,6 +58,7 @@ async fn backup() -> Result<()> {
     remove_file(BACKUP)?;
 
     let bot = Bot::from_env();
+    let total = std::fs::metadata(BACKUP_ENCRYPTED)?.len() as usize;
     let mut data_to_send = File::open(BACKUP_ENCRYPTED)?;
 
     bot.send_message(
@@ -68,16 +69,22 @@ async fn backup() -> Result<()> {
 
     let mut rr;
     let mut part = 0;
+    let mut read = 0;
     loop {
-        let mut buf = vec![0; MAX_FILE_SIZE];
+        let mut buf = vec![
+            0;
+            if total - read < MAX_FILE_SIZE {
+                total - read
+            } else {
+                MAX_FILE_SIZE
+            }
+        ];
+
         rr = data_to_send.read(&mut buf)?;
+        read += rr;
         debug!("Read {} bytes", rr);
 
         let data = InputFile::memory(buf).file_name(format!("part_{:06}", part));
-
-        if rr == 0 {
-            break;
-        }
 
         loop {
             match bot.send_document(chat_id.clone(), data.clone()).await {
@@ -94,6 +101,10 @@ async fn backup() -> Result<()> {
         }
         info!("Sent part {}", part);
         part += 1;
+
+        if read >= total {
+            break;
+        }
     }
 
     drop(data_to_send);
