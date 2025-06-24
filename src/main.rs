@@ -6,7 +6,8 @@ use std::{
 };
 
 use anyhow::Result;
-use log::error;
+use clokwerk::{AsyncScheduler, Interval};
+use log::{error, info};
 use rpgpie::{
     certificate::Certificate,
     message::{SignatureMode, encrypt},
@@ -21,6 +22,27 @@ const MAX_FILE_SIZE: usize = 50000000;
 #[tokio::main]
 async fn main() -> Result<()> {
     env_logger::init();
+    let mut scheduler = AsyncScheduler::new();
+    let interval = var("INTERVAL")?.parse::<u32>()?;
+
+    scheduler.every(Interval::Hours(interval)).run(|| async {
+        info!("Running a backup");
+        backup().await.unwrap();
+        info!("Backup terminated");
+    });
+
+    info!("Program set to backup every {} hours", interval);
+
+    info!("Running first backup out of schedule");
+    backup().await?;
+
+    loop {
+        scheduler.run_pending().await;
+        sleep(Duration::from_secs(30)).await;
+    }
+}
+
+async fn backup() -> Result<()> {
     let chat_id = var("CHAT_ID").unwrap();
     let locations: Vec<String> = var("LOCATIONS")
         .unwrap()
@@ -60,7 +82,6 @@ async fn main() -> Result<()> {
             }
         }
     }
-
     Ok(())
 }
 
