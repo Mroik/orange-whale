@@ -1,6 +1,6 @@
 use std::{
     env::var,
-    fs::{File, remove_file},
+    fs::{File, metadata, remove_file},
     io::Read,
     os::unix::fs::FileTypeExt,
     time::{Duration, UNIX_EPOCH},
@@ -58,7 +58,7 @@ async fn backup() -> Result<()> {
     remove_file(BACKUP)?;
 
     let bot = Bot::from_env();
-    let total = std::fs::metadata(BACKUP_ENCRYPTED)?.len() as usize;
+    let total = metadata(BACKUP_ENCRYPTED)?.len() as usize;
     let mut data_to_send = File::open(BACKUP_ENCRYPTED)?;
 
     bot.send_message(
@@ -119,7 +119,7 @@ fn list_leafs(acc: &mut Vec<String>, path: &str) -> Result<()> {
         match entry {
             Ok(e) => {
                 acc.push(format!("{}/{}", path, e.file_name().to_str().unwrap()));
-                if e.file_type().unwrap().is_dir() {
+                if e.file_type()?.is_dir() {
                     list_leafs(
                         acc,
                         &format!("{}/{}", path, e.file_name().to_str().unwrap()),
@@ -143,7 +143,7 @@ fn archive(locations: &[String]) -> Result<()> {
 
     for p in paths
         .iter()
-        .filter(|item| !std::fs::metadata(item).unwrap().file_type().is_socket())
+        .filter(|item| !metadata(item).unwrap().file_type().is_socket())
     {
         b.append_path(p)?;
     }
