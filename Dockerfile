@@ -2,6 +2,7 @@ FROM rust:1.86.0-alpine AS builder
 RUN apk add pkgconfig openssl musl-dev libressl-dev
 COPY . /app
 WORKDIR /app
+RUN cargo update
 RUN cargo b -r
 
 FROM alpine:3.20.3
