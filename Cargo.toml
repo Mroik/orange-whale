@@ -8,7 +8,7 @@ anyhow = "1.0.98"
 clokwerk = "0.4.0"
 env_logger = "0.11.8"
 log = "0.4.27"
-rpgpie = "0.6.2"
+rpgpie = "0.8.2"
 tar = "0.4.44"
 teloxide = "0.16.0"
 tokio = { version = "1.45.1", features = ["macros"] }

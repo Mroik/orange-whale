@@ -11,10 +11,6 @@ Now the following envvar:
 - `INTERVAL`: an integer indicating how often to backup specified in hours
 - `RUST_LOG`: logging verbosity. If you're using docker I advise you to set it to `info`
 
-> [!WARNING]
-> The key has to have only a single UID otherwise the program won't be able to encrypt. This is an issue of a dependency
-> this program uses.
-
 ## Backups
 Once the bot starts uploading you'll realize that the data is split in multiple parts. That's because bots on
 telegram have an upload limit of 50MB on files. Just download all the parts and `cat` them together. After that
