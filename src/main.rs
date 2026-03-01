@@ -29,7 +29,10 @@ async fn main() -> Result<()> {
     let interval = var("INTERVAL")?.parse::<u32>()?;
 
     scheduler.every(Interval::Hours(interval)).run(|| async {
-        backup().await.unwrap();
+        match backup().await {
+            Ok(_) => (),
+            Err(e) => println!("There was an error: {}", e),
+        }
     });
 
     info!("Program set to backup every {} hours", interval);
