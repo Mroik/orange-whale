@@ -1,4 +1,4 @@
-FROM rust:1.91.1-alpine AS builder
+FROM rust:1.93.1-alpine AS builder
 RUN apk add pkgconfig openssl openssl-dev openssl-libs-static musl-dev
 COPY . /app
 WORKDIR /app
