@@ -29,9 +29,8 @@ async fn main() -> Result<()> {
     let interval = var("INTERVAL")?.parse::<u32>()?;
 
     scheduler.every(Interval::Hours(interval)).run(|| async {
-        match backup().await {
-            Ok(_) => (),
-            Err(e) => println!("There was an error: {}", e),
+        if let Err(e) = backup().await {
+            println!("There was an error: {}", e);
         }
     });
 
@@ -66,7 +65,7 @@ async fn backup() -> Result<()> {
 
     bot.send_message(
         chat_id.clone(),
-        format!("{}", UNIX_EPOCH.elapsed()?.as_secs().to_string()),
+        UNIX_EPOCH.elapsed()?.as_secs().to_string(),
     )
     .await?;
 
@@ -118,18 +117,13 @@ async fn backup() -> Result<()> {
 }
 
 fn list_leafs(acc: &mut Vec<String>, path: &str) -> Result<()> {
-    for entry in std::fs::read_dir(path)? {
-        match entry {
-            Ok(e) => {
-                acc.push(format!("{}/{}", path, e.file_name().to_str().unwrap()));
-                if e.file_type()?.is_dir() {
-                    list_leafs(
-                        acc,
-                        &format!("{}/{}", path, e.file_name().to_str().unwrap()),
-                    )?;
-                }
-            }
-            Err(_) => (),
+    for e in std::fs::read_dir(path)?.flatten() {
+        acc.push(format!("{}/{}", path, e.file_name().to_str().unwrap()));
+        if e.file_type()?.is_dir() {
+            list_leafs(
+                acc,
+                &format!("{}/{}", path, e.file_name().to_str().unwrap()),
+            )?;
         }
     }
     Ok(())
