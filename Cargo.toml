@@ -7,9 +7,9 @@ edition = "2024"
 anyhow = "1.0.102"
 clokwerk = "0.4.0"
 env_logger = "0.11.10"
-log = "0.4.29"
+log = "0.4.32"
 rpgpie = "0.9.1"
-tar = "0.4.45"
+tar = "0.4.46"
 teloxide = "0.17.0"
 tokio = { version = "1.52.3", features = ["macros"] }
 
