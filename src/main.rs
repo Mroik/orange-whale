@@ -56,18 +56,20 @@ async fn backup() -> Result<()> {
         .collect();
 
     archive(&locations)?;
-    encrypt_data("pub.txt")?;
+    let bot = Bot::from_env();
+    if let Err(e) = encrypt_data("pub.txt") {
+        error!("could NOT encrypt: {}", e);
+        bot.send_message(chat_id.clone(), format!("could NOT encrypt: {}", e))
+            .await?;
+        return Ok(());
+    }
     remove_file(BACKUP)?;
 
-    let bot = Bot::from_env();
     let total = metadata(BACKUP_ENCRYPTED)?.len() as usize;
     let mut data_to_send = File::open(BACKUP_ENCRYPTED)?;
 
-    bot.send_message(
-        chat_id.clone(),
-        UNIX_EPOCH.elapsed()?.as_secs().to_string(),
-    )
-    .await?;
+    bot.send_message(chat_id.clone(), UNIX_EPOCH.elapsed()?.as_secs().to_string())
+        .await?;
 
     let mut rr;
     let mut part = 0;
