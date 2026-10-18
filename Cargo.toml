@@ -1,17 +1,17 @@
 [package]
 name = "orange-whale"
-version = "0.1.3"
+version = "0.1.7"
 edition = "2024"
 
 [dependencies]
-anyhow = "1.0.102"
+anyhow = "1.0.104"
 clokwerk = "0.4.0"
-env_logger = "0.11.10"
-log = "0.4.32"
-rpgpie = "0.9.1"
+env_logger = "0.11.11"
+log = "0.4.34"
+rpgpie = "0.12.0"
 tar = "0.4.46"
 teloxide = "0.17.0"
-tokio = { version = "1.52.3", features = ["macros"] }
+tokio = { version = "1.53.3", features = ["macros"] }
 
 [profile.release]
 strip = true
