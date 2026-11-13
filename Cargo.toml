@@ -7,11 +7,11 @@ edition = "2024"
 anyhow = "1.0.104"
 clokwerk = "0.4.0"
 env_logger = "0.11.11"
-log = "0.4.34"
-rpgpie = "0.12.0"
+log = "0.4.35"
+rpgpie = "0.12.1"
 tar = "0.4.46"
 teloxide = "0.17.0"
-tokio = { version = "1.53.3", features = ["macros"] }
+tokio = { version = "1.54.1", features = ["macros"] }
 
 [profile.release]
 strip = true
